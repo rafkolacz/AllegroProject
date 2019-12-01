@@ -1,20 +1,14 @@
-# tutaj cos nie dziala, czemu ciagle 404? 
+# Skrypt sluzy do zapytania api o reputacje sprzedawcy, zwraca one laczna liczbe opini (+ i -) oraz srednia z deliveryCost, service i description
 import requests
 import json
 
-access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzUxNzc2MjAsInVzZXJfbmFtZSI6IjQ4MDEzMjUzIiwianRpIjoiMGNlMTVhZDctZmJhNi00MjU4LTg1ZTktNjY0NGZkNjBhMDVlIiwiY2xpZW50X2lkIjoiYzNiYTNhYjJiN2FmNDE3NzllYzI5OWZlZmNhZjI0NTgiLCJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdfQ.p5EVuu7HEXROTtGj5gXGKUYUVkxY1_5Dpwk1e2yfuxHUwl09UOpM3B-Fg3kTvBE5SFaI7uFDkh-rhJE3htb4LUQrxnqBlSajVpbPgqGzIsnsVpYecLps2FW2dlXiFXM6vXyf8dDvUgz99RTU7cHYk-ikJ5-HN2ajz7qKu-aJTFSHnis5lUpsIA0bTr9nkqDBAgHJSwGuayvQN9Abolo9b76m4_6rAc-Cq5uM00rY1tnZTY2GNFg3P338wlgWr-eU7o9SKJ_LMTi3sdUNPJ37zDXDmWY_dLlohQmUYgh9sP6yMuirbx8XDYWn7TxDhyB56VJOdniUqtb-mR7Z-QVEug"
-MAIN_URL = 'https://api.allegro.pl/users/{userId}/ratings-summary'
 
-user_id = "41846511"
-
-
-def get_http_response(user_id):
+def get_http_response_sel(user_id,access_token): # zapytanie o sprzedajacego, jedyna zmiana, to podajemy jego id w main url
+        MAIN_URL = 'https://api.allegro.pl/users/'+str(user_id)+'/ratings-summary'
         return requests.get(MAIN_URL,
-                                    params={
-                                        'userId': user_id
-                                    },
+
                                     headers={
-                                        'Authorization': 'Bearer ' +  access_token,
+                                        'Authorization': 'Bearer ' + access_token,
                                         'Accept':
                                         'application/vnd.allegro.public.v1+json',
                                         'Content-Type':
@@ -22,17 +16,17 @@ def get_http_response(user_id):
                                     })
 
 
-resp = requests.get(MAIN_URL,
-                            params={
-                                    #'userId': '0'
-                             },
-                            headers={
-                                    'Authorization': 'Bearer ' +  access_token,
-                                    'Accept':
-                                    'application/vnd.allegro.public.v1+json',
-                                    'Content-Type':
-                                    'application/vnd.allegro.public.v1+json'
-                                })
-#url_json = json.loads(resp.text)
-print("X")
-print(resp)
+def get_seller_rates(user_id,access_token):   # zwraca srednia z ocen o sprzedajacym oraz laczna liczbe ocen
+    response = get_http_response_sel(user_id,access_token)
+    if response.status_code == 200:
+        url_json_sel = json.loads(response.text)
+        number = int(url_json_sel['recommended']['total']) + int(url_json_sel['notRecommended']['total'])
+        rates = (float(url_json_sel['averageRates']['deliveryCost']) + float(url_json_sel['averageRates']['service']) + float(url_json_sel['averageRates']['description']))/3
+        if rates is not None:
+            return rates, number
+    else:
+            rates = 0
+            number = 0
+            return rates,number
+
+
