@@ -98,11 +98,11 @@ for product_parameter in data:  # a tutaj x leci po data, czyli jak poda 3 produ
     x += 1
 
 
-#print(set1)
-#print("-----------")
-#print(set2)
-#print("-----------")
-#print(set3)
+print(set1)
+print("-----------")
+print(set2)
+print("-----------")
+print(set3)
 
 
 
@@ -112,7 +112,7 @@ count = 0
 print("Zestaw 1: ")
 for i in data:
     if set1[count][1] != "i":
-        print(str(count+1) + ". " + str(set1[count][1]) + " https://allegro.pl/oferta/" + str(set1[count][4]))
+        print(str(count+1) + ". " + str(set1[count][1]) + " Cena: " + str(set1[count][0]) + " https://allegro.pl/oferta/" + str(set1[count][4]))
     else:
         print("Nie ma produku nr " + str(count+1)  + " spelniajacego wymagania")
     count += 1
@@ -121,7 +121,7 @@ print("Zestaw 2: ")
 for i in data:
     try:
         if set2[count][1] != "i":
-            print(str(count+1) + ". " + str(set2[count][1]) + " https://allegro.pl/oferta/" + str(set2[count][4]))
+            print(str(count+1) + ". " + str(set2[count][1]) + " Cena: " + str(set2[count][0]) + " https://allegro.pl/oferta/" + str(set2[count][4]))
         else:
             print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
     except IndexError:
@@ -131,7 +131,7 @@ count = 0
 print("Zestaw 3: ")
 for i in data:
     if set3[count][1] != "i":
-        print(str(count+1) + ". " + str(set3[count][1]) + " https://allegro.pl/oferta/" + str(set3[count][4]))
+        print(str(count+1) + ". " + str(set3[count][1]) +" Cena: " + str(set3[count][0]) + " https://allegro.pl/oferta/" + str(set3[count][4]))
     else:
         print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
     count += 1
