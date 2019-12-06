@@ -3,6 +3,7 @@ from tkinter import messagebox
 from alleproduct import AllegroAPI
 import time
 
+
 class MainWindow(tk.Frame):
     itemCounter = 0
     items = []
@@ -105,24 +106,36 @@ class MainWindow(tk.Frame):
             a = AllegroAPI(self.items)
             a.search()
 
-            for index in range(len(a.set1)):
-                if a.set1[index][1] == 'i':
-                    set1_text.insert(tk.END, "Nie ma produku nr " + str(index+1) + " spelniajacego wymagania" + "\n")
-                else:
-                    set1_text.insert(tk.END, str(index + 1) + ". " + str(a.set1[index][1]) + " Cena: " + str(
-                        a.set1[index][0]) + " https://allegro.pl/oferta/" + str(a.set1[index][4]) + "\n")
-            for index in range(len(a.set2)):
-                if a.set2[index][1] == 'i':
-                    set2_text.insert(tk.END, "Nie ma produku nr " + str(index+1) + " spelniajacego wymagania" + "\n")
-                else:
-                    set2_text.insert(tk.END, str(index + 1) + ". " + str(a.set2[index][1]) + " Cena: " + str(
-                        a.set2[index][0]) + " https://allegro.pl/oferta/" + str(a.set2[index][4]) + "\n")
-            for index in range(len(a.set3)):
-                if a.set3[index][1] == 'i':
-                    set3_text.insert(tk.END, "Nie ma produku nr " + str(index+1) + " spelniajacego wymagania" + "\n")
-                else:
-                    set3_text.insert(tk.END, str(index + 1) + ". " + str(a.set3[index][1]) + " Cena: " + str(
-                        a.set3[index][0]) + " https://allegro.pl/oferta/" + str(a.set3[index][4]) + "\n")
+            for index in range(len(self.items)):
+                try:
+                    if a.set1[index][1] == 'i':
+                        set1_text.insert(tk.END,
+                                         "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+                    else:
+                        set1_text.insert(tk.END, str(index + 1) + ". " + str(a.set1[index][1]) + " Cena: " + str(
+                            a.set1[index][0]) + " https://allegro.pl/oferta/" + str(a.set1[index][4]) + "\n")
+                except IndexError:
+                    set1_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+            for index in range(len(self.items)):
+                try:
+                    if a.set2[index][1] == 'i':
+                        set2_text.insert(tk.END,
+                                         "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+                    else:
+                        set2_text.insert(tk.END, str(index + 1) + ". " + str(a.set2[index][1]) + " Cena: " + str(
+                            a.set2[index][0]) + " https://allegro.pl/oferta/" + str(a.set2[index][4]) + "\n")
+                except IndexError:
+                    set2_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+            for index in range(len(self.items)):
+                try:
+                    if a.set3[index][1] == 'i':
+                        set3_text.insert(tk.END,
+                                         "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+                    else:
+                        set3_text.insert(tk.END, str(index + 1) + ". " + str(a.set3[index][1]) + " Cena: " + str(
+                            a.set3[index][0]) + " https://allegro.pl/oferta/" + str(a.set3[index][4]) + "\n")
+                except IndexError:
+                    set3_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
 
             self.items = []
             self.itemCounter = 0

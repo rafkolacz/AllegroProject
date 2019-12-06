@@ -61,12 +61,12 @@ def get_json(name):
 
 # data = inputdata()
 # data = ["telewizor", 10, 1000, 1500, 5, 1000] # do testowania jednego zapytania
-data = [["telewizor", 10, 1000, 1500, 5, 1000],["xbox one x", 5, 1300, 1700, 4.5, 1000],["ps4", 15, 1000, 1500, 4, 2000],["mustang", 1, 1000, 170000, 0, 1],["Red Dead Redemption", 1, 100, 200, 5, 3000]]
+#data = [["telewizor", 10, 1000, 1500, 5, 1000],["xbox one x", 5, 1300, 1700, 4.5, 1000],["ps4", 15, 1000, 1500, 4, 2000],["mustang", 1, 1000, 170000, 0, 1],["Red Dead Redemption", 1, 100, 200, 5, 3000]]
 
 # petla pyta o wybrany produkt
 
 class AllegroAPI():
-
+    x = 0
 
     def __init__(self, data):
         self.data=data
@@ -76,33 +76,89 @@ class AllegroAPI():
 
     def search(self):
         for product in self.data:  # a tutaj x leci po data, czyli jak poda 3 produkty, to petla sie wykona 3 razy
-            self.set = []
-            url_json = get_json(product[0])
+            set = []
+            url_json = get_json(self.data[self.x][0])
             for j in url_json['items']:
                 for k in url_json['items'][j]:
-                    if CheckRequirements.count(product[1],k['stock']['available']) is True:    # liczba sztuk
-                            if CheckRequirements.productprice(product[2],product[3],k['sellingMode']['price']['amount']) is True: # czy cena miesci sie w granicach
-                                seller = SellerRep.get_seller_rates(int(k['seller']['id']),access_token)
-                                if CheckRequirements.rates(product[4], seller[0], product[5], seller[1]) is True:  # oceny, przydaloby sie, zeby najpierw bylo sortowanie, a pozniej sprawdzal oceny
-                                    #print(k['name'] + " cena = " + k['sellingMode']['price']['amount'] + " ilosc = " + str(k['stock']['available']) + " dostawa = " + k['delivery']['lowestPrice']['amount'])
-                                    #print(" " + str(seller[0]))    # do testow
-                                    self.set.append([k['sellingMode']['price']['amount'],k['name'],str(k['stock']['available']),k['delivery']['lowestPrice']['amount'],k['id']])    # cena,nazwa,ilosc, zeby latwiej posortowac
+                    if CheckRequirements.count(self.data[self.x][1], k['stock']['available']) is True:  # liczba sztuk
+                        if CheckRequirements.productprice(self.data[self.x][2], self.data[self.x][3], k['sellingMode']['price'][
+                            'amount']) is True:  # czy cena miesci sie w granicach
+                            # print(k['name'] + " cena = " + k['sellingMode']['price']['amount'] + " ilosc = " + str(k['stock']['available']) + " dostawa = " + k['delivery']['lowestPrice']['amount'])
+                            # print(" " + str(seller[0]))    # do testow
+                            set.append([k['sellingMode']['price']['amount'], k['name'], str(k['stock']['available']),
+                                        k['delivery']['lowestPrice']['amount'], k['id'],
+                                        int(k['seller']['id'])])  # cena,nazwa,ilosc, zeby latwiej posortowac
             # wersja 1 cena z dostawa
-            for i in self.set[:]:
-                i[0] = float(i[0]) + float(i[3])
-            self.set.sort()
-            if len(self.set) > 0:
-                self.set1.append(self.set[0])
-            else:
-                self.set1.append("Nie ma produku spelniajacego wymagania")   # tutaj fajnie by bylo ogarnac wlasny blad
-            if len(self.set) > 1:
-                self.set2.append(self.set[1])
+            for i in set[:]:
+                i[0] = float(i[0]) + float(i[3])  # dodajemy do ceny koszt dostawy
+            set.sort(reverse=True)
+
+            if self.x > 0:  # sprawdza czy w poprzednich zestawach sa ci sami sprzedawcy, jesli tak to ich faworyzuje
+                j = 0
+                for i in set[:]:
+                    for k in self.set1:
+                        if i[5] == k[5]:
+                            seller = SellerRep.get_seller_rates(i[5], access_token)
+                            if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                                i[0] = float(i[0]) - float(i[3])
+                                self.set1.append(i)
+                                break
+                            j += 1
+            if self.x > 0:
+                j = 0
+                for i in set[:]:
+                    for k in self.set2:
+                        if i[5] == k[5]:
+                            seller = SellerRep.get_seller_rates(i[5], access_token)
+                            if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                                i[0] = float(i[0]) - float(i[3])
+                                self.set2.append(i)
+                                break
+                            j += 1
+            if self.x > 0:
+                j = 0
+                for i in set[:]:
+                    for k in self.set2:
+                        if i[5] == k[5]:
+                            seller = SellerRep.get_seller_rates(i[5], access_token)
+                            if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                                i[0] = float(i[0]) - float(i[3])
+                                self.set3.append(i)
+                                break
+                        j += 1
+            set.sort()
+
+            # formujemy zestawy
+            if len(set) > 0:
+                for k in set[:]:
+                    if len(self.set1) < self.x + 1:
+                        seller = SellerRep.get_seller_rates(int(k[5]), access_token)
+                        if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                            self.set1.append(set[0])
+                            break
             else:
                 self.set1.append("Nie ma produku spelniajacego wymagania")
-            if len(self.set) > 2:
-                self.set3.append(self.set[2])
+
+            if len(set) > 1:
+                for k in set[:]:
+                    if len(self.set2) < self.x + 1:
+                        seller = SellerRep.get_seller_rates(int(k[5]), access_token)
+                        if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                            self.set2.append(set[1])
+                            break
+            else:
+                self.set1.append("Nie ma produku spelniajacego wymagania")
+
+            if len(set) > 2:
+                for k in set[:]:
+                    if len(self.set3) < self.x + 1:
+                        seller = SellerRep.get_seller_rates(int(k[5]), access_token)
+                        if CheckRequirements.rates(self.data[self.x][4], seller[0], self.data[self.x][5], seller[1]) is True:
+                            self.set3.append(set[2])
+                            break
             else:
                 self.set3.append("Nie ma produku spelniajacego wymagania")
+            self.x += 1
 
 
 
@@ -116,20 +172,30 @@ class AllegroAPI():
 
 
         # do wyswietlania w konsoli
+        price1 = 0
+        price2 = 0
+        price3 = 0
         count = 0
         print("Zestaw 1: ")
-        for item in self.set1:
-            if item[1] != "i":
-                print(str(count+1) + ". " + str(item[1]) + " Cena: " + str(item[0]) + " https://allegro.pl/oferta/" + str(item[4]))
-            else:
-                print("Nie ma produku nr " + str(count+1)  + " spelniajacego wymagania")
+        for i in self.data:
+            try:
+                if self.set1[count][1] != "i":
+                    print(str(count + 1) + ". " + str(self.set1[count][1]) + " Cena: " + str(
+                        self.set1[count][0]) + " https://allegro.pl/oferta/" + str(self.set1[count][4]))
+                    price1 += self.set1[count][0]
+                else:
+                    print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
+            except IndexError:
+                print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
             count += 1
         count = 0
         print("Zestaw 2: ")
-        for item in self.set2:
+        for i in self.data:
             try:
-                if item[1] != "i":
-                    print(str(count+1) + ". " + str(item[1]) + " Cena: " + str(item[0]) + " https://allegro.pl/oferta/" + str(item[4]))
+                if self.set2[count][1] != "i":
+                    print(str(count + 1) + ". " + str(self.set2[count][1]) + " Cena: " + str(
+                        self.set2[count][0]) + " https://allegro.pl/oferta/" + str(self.set2[count][4]))
+                    price2 += self.set2[count][0]
                 else:
                     print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
             except IndexError:
@@ -137,10 +203,15 @@ class AllegroAPI():
             count += 1
         count = 0
         print("Zestaw 3: ")
-        for item in self.set3:
-            if item[1] != "i":
-                print(str(count+1) + ". " + str(item[1]) +" Cena: " + str(item[0]) + " https://allegro.pl/oferta/" + str(item[4]))
-            else:
+        for i in self.data:
+            try:
+                if self.set3[count][1] != "i":
+                    print(str(count + 1) + ". " + str(self.set3[count][1]) + " Cena: " + str(
+                        self.set3[count][0]) + " https://allegro.pl/oferta/" + str(self.set3[count][4]))
+                    price3 += self.set3[count][0]
+                else:
+                    print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
+            except IndexError:
                 print("Nie ma produku nr " + str(count + 1) + " spelniajacego wymagania")
             count += 1
 
