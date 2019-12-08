@@ -105,7 +105,9 @@ class MainWindow(tk.Frame):
 
             a = AllegroAPI(self.items)
             a.search()
-
+            price1 = 0
+            price2 = 0
+            price3 = 0
             for index in range(len(self.items)):
                 try:
                     if a.set1[index][1] == 'i':
@@ -114,6 +116,7 @@ class MainWindow(tk.Frame):
                     else:
                         set1_text.insert(tk.END, str(index + 1) + ". " + str(a.set1[index][1]) + " Cena: " + str(
                             a.set1[index][0]) + " https://allegro.pl/oferta/" + str(a.set1[index][4]) + "\n")
+                        price1 += a.set1[index][0]
                 except IndexError:
                     set1_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
             for index in range(len(self.items)):
@@ -124,6 +127,7 @@ class MainWindow(tk.Frame):
                     else:
                         set2_text.insert(tk.END, str(index + 1) + ". " + str(a.set2[index][1]) + " Cena: " + str(
                             a.set2[index][0]) + " https://allegro.pl/oferta/" + str(a.set2[index][4]) + "\n")
+                        price2 += a.set2[index][0]
                 except IndexError:
                     set2_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
             for index in range(len(self.items)):
@@ -134,8 +138,12 @@ class MainWindow(tk.Frame):
                     else:
                         set3_text.insert(tk.END, str(index + 1) + ". " + str(a.set3[index][1]) + " Cena: " + str(
                             a.set3[index][0]) + " https://allegro.pl/oferta/" + str(a.set3[index][4]) + "\n")
+                        price3 += a.set3[index][0]
                 except IndexError:
                     set3_text.insert(tk.END, "Nie ma produku nr " + str(index + 1) + " spelniajacego wymagania" + "\n")
+            set1_label['text'] = set1_label['text'] + "\n" + str(round(price1,2)) + " PLN"
+            set2_label['text'] = set2_label['text'] + "\n" + str(round(price2,2)) + " PLN"
+            set3_label['text'] = set3_label['text'] + "\n" + str(round(price3,2)) + " PLN"
 
             self.items = []
             self.itemCounter = 0
